@@ -39,6 +39,8 @@ namespace Yaans.Controllers
                 var authClaims = new List<Claim>()
                     {
                         new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+                        new Claim(ClaimTypes.NameIdentifier,user.Id),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                     };
                 var authSignInKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));

@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Yaans.Data.Context;
 using Yaans.Data.Interfaces;
+using Yaans.Domain.Models;
 
 namespace Yaans.Data.Repos
 {
-    public class GenericRepository<T> : IRepository<T> where T : class
+    public class GenericRepository<T> : IRepository<T> where T : BaseEntity
     {
         private readonly YaansDBContext dbContext;
         private readonly DbSet<T> dbSet;
@@ -39,10 +40,13 @@ namespace Yaans.Data.Repos
         }
         public void Add(T entity)
         {
+            entity.CreatedOn = DateTime.Now;
             this.dbSet.Add(entity);
         }
         public void Update(T entity)
         {
+            entity.UpdatedOn = DateTime.Now;
+            dbContext.Entry(entity).State = EntityState.Modified;
             this.dbSet.Attach(entity);
             this.dbContext.Entry(entity).State = EntityState.Modified;
         }

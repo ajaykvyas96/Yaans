@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Yaans.Data.Interfaces;
+using Yaans.Domain.Identity;
 using Yaans.Domain.Models;
 using Yaans.Domain.ViewModels;
+using Yaans.Extensions;
 
 namespace Yaans.Controllers
 {
@@ -15,11 +19,13 @@ namespace Yaans.Controllers
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
+        private readonly UserManager<AppUser> _userManager;
 
-        public CategoryController(IUnitOfWork uow, IMapper mapper)
+        public CategoryController(IUnitOfWork uow, IMapper mapper, UserManager<AppUser> userManager)
         {
             this.uow = uow;
             this.mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -42,6 +48,7 @@ namespace Yaans.Controllers
         public async Task<IActionResult> Add(CategoryViewModel model)
         {
             Category category = mapper.Map<Category>(model);
+            category.CreatedBy = User.GetUserId();
             uow.CategoryRepos.Add(category);
             await uow.Commit();
             return Ok(model);
@@ -50,7 +57,9 @@ namespace Yaans.Controllers
         [HttpPut]
         public async Task<IActionResult> Update(CategoryViewModel model)
         {
-            Category category = mapper.Map<Category>(model);
+            Category category = await uow.CategoryRepos.GetAsync(model.Id);
+            category = mapper.Map<Category>(model);
+            category.UpdatedBy = User.GetUserId();
             uow.CategoryRepos.Update(category);
             await uow.Commit();
             return Ok(model);

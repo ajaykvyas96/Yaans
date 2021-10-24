@@ -7,7 +7,7 @@ using System.Text;
 namespace Yaans.Domain.Models
 {
     [Table("Products")]
-    public class Product
+    public class Product : BaseEntity
     {
         public int Id { get; set; }
         [MaxLength(100)]
